@@ -1,0 +1,57 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: car-tracking-dashboard-web
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      OSRM_BASE_URL: http://osrm:5000
+    # ports:
+    #   - "8080:3000"
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.car-tracker-dashboard.rule=Host(`mycar.zeeit.dev`)"
+      - "traefik.http.routers.car-tracker-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.car-tracker-dashboard.tls.certresolver=cloudflare"
+      - "traefik.http.services.car-tracker-dashboard.loadbalancer.server.port=3000"
+    depends_on:
+      osrm:
+        condition: service_started
+    restart: unless-stopped
+
+  osrm-init:
+    image: osrm/osrm-backend:latest
+    container_name: car-tracking-dashboard-osrm-init
+    volumes:
+      - ./osrm/data:/data
+      - ./osrm/scripts/init-osrm.sh:/usr/local/bin/init-osrm.sh:ro
+    environment:
+      OSM_PBF_URL: ${OSM_PBF_URL:-}
+      OSRM_PBF: /data/map.osm.pbf
+      OSRM_PROFILE: /opt/car.lua
+      OSRM_DATA_DIR: /data
+    entrypoint: ["/bin/bash", "/usr/local/bin/init-osrm.sh"]
+    restart: "no"
+
+  osrm:
+    image: osrm/osrm-backend:latest
+    container_name: car-tracking-dashboard-osrm
+    volumes:
+      - ./osrm/data:/data
+    command: osrm-routed --algorithm mld /data/map.osrm
+    ports:
+      - "8549:5000"
+    depends_on:
+      osrm-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+networks:
+  traefik-public:
+    external: true
