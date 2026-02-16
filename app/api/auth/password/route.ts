@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_COOKIE_NAMES, getAuthBaseConfig, getLocalAuthConfig } from "@/lib/auth-config";
+import { getAuthBaseConfig, getLocalAuthConfig } from "@/lib/auth-config";
+import { setSessionCookie } from "@/lib/auth-cookie";
 import { sanitizeCallbackUrl, signSession } from "@/lib/auth-utils";
 
 export const dynamic = "force-dynamic";
@@ -45,12 +46,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
 
     const response = NextResponse.redirect(new URL(callbackUrl, authBase.appBaseUrl), 303);
-    response.cookies.set(AUTH_COOKIE_NAMES.session, sessionToken, {
-      httpOnly: true,
-      secure: authBase.appBaseUrl.startsWith("https://"),
-      sameSite: "lax",
-      maxAge: authBase.sessionTtlSec,
-      path: "/"
+    setSessionCookie(response, sessionToken, {
+      appBaseUrl: authBase.appBaseUrl,
+      maxAgeSec: authBase.sessionTtlSec
     });
 
     return response;

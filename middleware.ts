@@ -4,6 +4,10 @@ import { AUTH_COOKIE_NAMES } from "@/lib/auth-config";
 function isPublicPath(pathname: string): boolean {
   return (
     pathname === "/login" ||
+    pathname === "/offline" ||
+    pathname === "/sw.js" ||
+    pathname === "/manifest.webmanifest" ||
+    pathname.startsWith("/icons/") ||
     pathname.startsWith("/api/auth/") ||
     pathname.startsWith("/_next/") ||
     pathname === "/favicon.ico"

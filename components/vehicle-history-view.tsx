@@ -133,9 +133,9 @@ export default function VehicleHistoryView({ plate }: { plate: string }) {
   }, [trips]);
 
   return (
-    <section style={{ display: "grid", gap: 14 }}>
-      <div className="panel" style={{ padding: 14, display: "grid", gap: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+    <section className="viewStack">
+      <div className="panel sectionPanel">
+        <div className="sectionHeader">
           <div>
             <h2>Vehicle: {plate}</h2>
             <p className="muted">Time range filtered timeline + route replay</p>
@@ -145,7 +145,7 @@ export default function VehicleHistoryView({ plate }: { plate: string }) {
           </Link>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(180px, 1fr))", gap: 8 }}>
+        <div className="rangeFormGrid">
           <label>
             <span className="muted">From</span>
             <input
@@ -158,7 +158,7 @@ export default function VehicleHistoryView({ plate }: { plate: string }) {
             <span className="muted">To</span>
             <input type="datetime-local" value={toLocal} onChange={(event) => setToLocal(event.target.value)} />
           </label>
-          <div style={{ display: "flex", alignItems: "end" }}>
+          <div className="rangeFormAction">
             <button type="button" onClick={() => fetchData().catch((err) => setError(String(err)))}>
               Apply Range
             </button>
@@ -197,8 +197,8 @@ export default function VehicleHistoryView({ plate }: { plate: string }) {
         snapped={history?.route.snapped ?? null}
       />
 
-      <section className="panel" style={{ padding: 12 }}>
-        <h3 style={{ marginBottom: 10 }}>Timeline</h3>
+      <section className="panel sectionPanel">
+        <h3 className="sectionTitle">Timeline</h3>
         <div className="tableWrap">
           <table>
             <thead>
@@ -224,8 +224,10 @@ export default function VehicleHistoryView({ plate }: { plate: string }) {
                   <td>{segment.city ?? "-"}</td>
                   <td>{segment.state ?? "-"}</td>
                   <td>
-                    {segment.locationWarning && <span className="badge warn">location issue</span>}
-                    {segment.hasTimeAnomaly && <span className="badge warn"> time anomaly</span>}
+                    <div className="flagStack">
+                      {segment.locationWarning && <span className="badge warn">Location issue</span>}
+                      {segment.hasTimeAnomaly && <span className="badge warn">Time anomaly</span>}
+                    </div>
                   </td>
                 </tr>
               ))}

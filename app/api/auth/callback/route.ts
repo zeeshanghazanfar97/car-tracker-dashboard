@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AUTH_COOKIE_NAMES, getOidcConfig } from "@/lib/auth-config";
+import { setSessionCookie } from "@/lib/auth-cookie";
 import { parseJwtPayload, sanitizeCallbackUrl, signSession } from "@/lib/auth-utils";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,6 @@ function clearTransientCookies(response: NextResponse): void {
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const config = getOidcConfig();
-  const secure = config.appBaseUrl.startsWith("https://");
 
   try {
     const authError = request.nextUrl.searchParams.get("error");
@@ -98,15 +98,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     const nowSec = Math.floor(Date.now() / 1000);
-    const expiresIn =
-      typeof tokenData.expires_in === "number" && Number.isFinite(tokenData.expires_in)
-        ? Math.max(300, Math.floor(tokenData.expires_in))
-        : config.sessionTtlSec;
-
     const sessionToken = await signSession(
       {
         iat: nowSec,
-        exp: nowSec + Math.min(expiresIn, config.sessionTtlSec),
+        exp: nowSec + config.sessionTtlSec,
         user: {
           sub,
           name: typeof merged.name === "string" ? merged.name : null,
@@ -123,12 +118,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
 
     const response = NextResponse.redirect(new URL(callbackUrl, config.appBaseUrl));
-    response.cookies.set(AUTH_COOKIE_NAMES.session, sessionToken, {
-      httpOnly: true,
-      secure,
-      sameSite: "lax",
-      maxAge: config.sessionTtlSec,
-      path: "/"
+    setSessionCookie(response, sessionToken, {
+      appBaseUrl: config.appBaseUrl,
+      maxAgeSec: config.sessionTtlSec
     });
 
     clearTransientCookies(response);

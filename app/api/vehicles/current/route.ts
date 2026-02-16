@@ -7,7 +7,7 @@ import { getCurrentVehicles } from "@/lib/queries";
 export const dynamic = "force-dynamic";
 
 const CACHE = new TtlCache<Awaited<ReturnType<typeof getCurrentVehicles>>>(
-  Math.max(5000, env.pollIntervalSec * 1000)
+  Math.max(250, env.currentVehiclesCacheTtlMs)
 );
 
 export async function GET(request: NextRequest): Promise<NextResponse> {

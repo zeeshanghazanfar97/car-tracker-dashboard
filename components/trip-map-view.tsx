@@ -112,16 +112,16 @@ export default function TripMapView({
   }, [data?.trips]);
 
   return (
-    <section style={{ display: "grid", gap: 14 }}>
-      <section className="panel" style={{ padding: 14, display: "grid", gap: 10 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <section className="viewStack">
+      <section className="panel sectionPanel">
+        <div className="sectionHeader">
           <h2>Trip Map</h2>
           <Link className="buttonLike secondary" href="/reports/trips">
             Back to Reports
           </Link>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto auto", gap: 8 }}>
+        <div className="reportFiltersGrid">
           <label>
             <span className="muted">Plate</span>
             <input value={plate} onChange={(event) => setPlate(event.target.value)} />
@@ -138,16 +138,11 @@ export default function TripMapView({
             <span className="muted">To</span>
             <input type="datetime-local" value={toLocal} onChange={(event) => setToLocal(event.target.value)} />
           </label>
-          <label style={{ display: "flex", alignItems: "end", gap: 8 }}>
-            <input
-              type="checkbox"
-              checked={snap}
-              onChange={(event) => setSnap(event.target.checked)}
-              style={{ width: 18, height: 18 }}
-            />
-            Snap to roads
+          <label className="checkboxControl checkboxControlBottom">
+            <input type="checkbox" checked={snap} onChange={(event) => setSnap(event.target.checked)} />
+            <span>Snap to roads</span>
           </label>
-          <div style={{ display: "flex", alignItems: "end" }}>
+          <div className="filterActionCell">
             <button type="button" onClick={() => fetchRoute().catch((err) => setError(String(err)))}>
               Load
             </button>
@@ -185,8 +180,8 @@ export default function TripMapView({
 
       <RouteMap points={data?.points ?? []} raw={data?.route.raw ?? null} snapped={data?.route.snapped ?? null} />
 
-      <section className="panel" style={{ padding: 12 }}>
-        <h3 style={{ marginBottom: 10 }}>Trip Segments In Selected Window</h3>
+      <section className="panel sectionPanel">
+        <h3 className="sectionTitle">Trip Segments In Selected Window</h3>
         <div className="tableWrap">
           <table>
             <thead>

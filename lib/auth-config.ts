@@ -16,6 +16,7 @@ export interface AuthBaseConfig {
   appBaseUrl: string;
   sessionSecret: string;
   sessionTtlSec: number;
+  sessionRefreshThresholdSec: number;
 }
 
 export interface LocalAuthConfig {
@@ -55,10 +56,17 @@ export function getOidcConfig(): OidcConfig {
 }
 
 export function getAuthBaseConfig(): AuthBaseConfig {
+  const sessionTtlSec = parseNumber(process.env.AUTH_SESSION_TTL_SEC, 60 * 60 * 24 * 90);
+  const sessionRefreshThresholdSec = Math.min(
+    sessionTtlSec,
+    parseNumber(process.env.AUTH_SESSION_REFRESH_THRESHOLD_SEC, 60 * 60 * 24 * 30)
+  );
+
   return {
     appBaseUrl: required("AUTH_APP_BASE_URL", process.env.AUTH_APP_BASE_URL),
     sessionSecret: required("AUTH_SESSION_SECRET", process.env.AUTH_SESSION_SECRET),
-    sessionTtlSec: parseNumber(process.env.AUTH_SESSION_TTL_SEC, 60 * 60 * 8)
+    sessionTtlSec,
+    sessionRefreshThresholdSec
   };
 }
 

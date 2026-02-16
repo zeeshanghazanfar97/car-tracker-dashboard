@@ -1,6 +1,7 @@
 const DEFAULTS = {
   osrmBaseUrl: "http://osrm:5000",
   pollIntervalSec: 10,
+  currentVehiclesCacheTtlMs: 1000,
   moveDistanceM: 50,
   moveSpeedKmh: 5,
   stopMinutes: 5,
@@ -16,6 +17,10 @@ export const env = {
   databaseUrl: process.env.DATABASE_URL ?? "",
   osrmBaseUrl: process.env.OSRM_BASE_URL ?? DEFAULTS.osrmBaseUrl,
   pollIntervalSec: parseNumber(process.env.POLL_INTERVAL_SEC, DEFAULTS.pollIntervalSec),
+  currentVehiclesCacheTtlMs: parseNumber(
+    process.env.CURRENT_VEHICLES_CACHE_TTL_MS,
+    DEFAULTS.currentVehiclesCacheTtlMs
+  ),
   moveDistanceM: parseNumber(process.env.TRIP_MOVE_DISTANCE_M, DEFAULTS.moveDistanceM),
   moveSpeedKmh: parseNumber(process.env.TRIP_MOVE_SPEED_KMH, DEFAULTS.moveSpeedKmh),
   stopMinutes: parseNumber(process.env.TRIP_STOP_MINUTES, DEFAULTS.stopMinutes),

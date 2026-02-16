@@ -14,7 +14,7 @@ export default function AuthControls({ userLabel }: AuthControlsProps) {
   }
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <div className="authControlGroup">
       <span className="muted">{userLabel}</span>
       <a href="/api/auth/logout" className="buttonLike secondary">
         Sign Out

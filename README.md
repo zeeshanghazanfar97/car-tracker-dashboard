@@ -5,6 +5,7 @@ Internal Next.js dashboard for live fleet location, vehicle history, trip infere
 ## Features
 
 - Live multi-vehicle map with latest known location per plate.
+- Adaptive live refresh (faster in foreground, slower in background).
 - Vehicle timeline and route replay for a selected period.
 - Trip report generation with KPI set:
   - Distance
@@ -14,6 +15,7 @@ Internal Next.js dashboard for live fleet location, vehicle history, trip infere
   - Max speed
 - Route snapping with OSRM (`OSRM_BASE_URL`), with fallback to raw route if unavailable.
 - CSV export for filtered trip reports.
+- Installable PWA with offline shell fallback.
 
 ## Environment
 
@@ -45,11 +47,16 @@ Optional tuning:
 
 - `POLL_INTERVAL_SEC`
 - `NEXT_PUBLIC_POLL_INTERVAL_SEC`
+- `NEXT_PUBLIC_POLL_INTERVAL_ACTIVE_SEC`
+- `NEXT_PUBLIC_POLL_INTERVAL_BACKGROUND_SEC`
+- `NEXT_PUBLIC_SESSION_REFRESH_INTERVAL_MIN`
+- `CURRENT_VEHICLES_CACHE_TTL_MS`
 - `TRIP_MOVE_DISTANCE_M`
 - `TRIP_MOVE_SPEED_KMH`
 - `TRIP_STOP_MINUTES`
 - `NEXT_PUBLIC_OSM_TILE_URL`
 - `AUTH_SESSION_TTL_SEC`
+- `AUTH_SESSION_REFRESH_THRESHOLD_SEC`
 - `OIDC_END_SESSION_URL`
 - `OIDC_SCOPE`
 - `OIDC_REDIRECT_PATH`
@@ -67,6 +74,11 @@ Open `http://localhost:3000`.
 ## OAuth2 / OpenID Connect Setup (Authentik Example)
 
 The app uses OAuth2 Authorization Code flow with PKCE and signed HttpOnly session cookies.
+Session persistence is configured for a 90-day sliding window by default:
+
+- `AUTH_SESSION_TTL_SEC=7776000` (90 days)
+- `AUTH_SESSION_REFRESH_THRESHOLD_SEC=2592000` (refresh when <= 30 days remain)
+- Client refresh cadence is controlled by `NEXT_PUBLIC_SESSION_REFRESH_INTERVAL_MIN` (default 720 minutes).
 
 ### 1) Create provider/app in Authentik
 
@@ -177,11 +189,23 @@ Note: first run can take time while `osrm-init` prepares routing files.
 - `GET /api/reports/trips?plate=&from=&to=`
 - `GET /api/reports/trips/route?plate=&from=&to=&snap=true|false`
 - `GET /api/reports/trips/export.csv?plate=&from=&to=`
+- `POST /api/auth/session/refresh`
 
 Notes:
 
 - `from` and `to` must be ISO datetime.
 - max query range is 7 days.
+
+## PWA
+
+The dashboard includes installable PWA metadata and a service worker:
+
+- Manifest: `/manifest.webmanifest`
+- Service worker: `/sw.js`
+- Offline fallback page: `/offline`
+
+Navigation requests use network-first behavior, then fall back to offline shell when disconnected.
+Live vehicle API responses are intentionally not long-cached by the service worker.
 
 ## DB Indexes
 

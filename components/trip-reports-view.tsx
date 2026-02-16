@@ -98,12 +98,12 @@ export default function TripReportsView() {
   }, [fromIso, toIso, plateInput]);
 
   return (
-    <section style={{ display: "grid", gap: 14 }}>
-      <section className="panel" style={{ padding: 14, display: "grid", gap: 12 }}>
+    <section className="viewStack">
+      <section className="panel sectionPanel">
         <h2>Trip Reports</h2>
         <p className="muted">Generate operational trip reports with distance, duration, idle, and speed KPIs.</p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto auto", gap: 8 }}>
+        <div className="reportFiltersGrid">
           <label>
             <span className="muted">Plate(s), comma separated</span>
             <input
@@ -125,12 +125,12 @@ export default function TripReportsView() {
             <input type="datetime-local" value={toLocal} onChange={(event) => setToLocal(event.target.value)} />
           </label>
 
-          <div style={{ display: "flex", alignItems: "end" }}>
+          <div className="filterActionCell">
             <button type="button" onClick={() => fetchTrips().catch((err) => setError(String(err)))}>
               Run Report
             </button>
           </div>
-          <div style={{ display: "flex", alignItems: "end" }}>
+          <div className="filterActionCell">
             <a className="buttonLike secondary" href={csvUrl}>
               Export CSV
             </a>
@@ -162,7 +162,7 @@ export default function TripReportsView() {
         </article>
       </div>
 
-      <section className="panel" style={{ padding: 12 }}>
+      <section className="panel sectionPanel">
         <div className="tableWrap">
           <table>
             <thead>
@@ -193,7 +193,7 @@ export default function TripReportsView() {
                     {formatNumber(trip.avgSpeedKmh, 1)} / {formatNumber(trip.maxSpeedKmh, 1)}
                   </td>
                   <td>
-                    <div style={{ display: "grid", gap: 6 }}>
+                    <div className="rowActionStack">
                       <Link
                         className="buttonLike"
                         href={`/reports/trips/map?plate=${encodeURIComponent(trip.plateNumber)}&from=${encodeURIComponent(
